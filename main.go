@@ -20,7 +20,7 @@ var (
 
 func main() {
 	logPath := flag.String("logPath", "./exporter.log", "exporter error log")
-	ngxStatusPath := flag.String("ngxStatusPath", "http://123.57.93.249/status", "Nginx status url path")
+	ngxStatusPath := flag.String("ngxStatusPath", "http://127.0.0.1/status", "Nginx status url path")
 	httpClientTimeout := flag.Duration("httpClientTimeout", time.Duration(time.Second*3), "The time the request nginx timed out")
 	namespace := flag.String("namespace", "null", "exporter namespace")
 
@@ -50,10 +50,12 @@ func main() {
 		*namespace = collector.DefaultNameSpace
 	}
 
+	// 构造NginxCollector实例
 	ngxCollector := collector.NewNginxCollector(*namespace, client)
-
+	// 注册NginxCollector
 	register.MustRegister(ngxCollector)
 
+	// 启动http服务,对外暴露metrics
 	gatherers := prometheus.Gatherers{
 		prometheus.DefaultGatherer,
 		register,
